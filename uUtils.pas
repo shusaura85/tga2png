@@ -12,9 +12,6 @@ procedure ConsoleColor(intense:boolean=false; r:boolean=true; g:boolean=true; b:
 procedure ShowUsage();
 procedure CreatePNG(Color, Mask: TBitmap; out Dest: TPngImage; InverseMask: Boolean = False);
 
-procedure ShowInputInfo(sourcefile:string; width:cardinal; height:cardinal);
-procedure ShowCropStatus(success:boolean; width:cardinal; height:cardinal);
-
 const
   APPNAME = 'Targa 2 PNG';
   APPVER = '1.0';
@@ -42,7 +39,7 @@ begin
  Writeln('==============================');
  Writeln('Usage:');
  ConsoleColor(true,true,true,false);
- Writeln(#9+'targa2png.exe m <tgafile> [<pngfile>] [<invert_mask>=0]');
+ Writeln(#9+'targa2png.exe <tgafile> [<pngfile>] [<invert_mask>=0]');
  ConsoleColor();
  Writeln('----------');
  ConsoleColor(true); Write('TGAFILE'+#9#9); ConsoleColor(); Writeln('TGA file to convert');
@@ -68,7 +65,6 @@ procedure CreatePNG(Color, Mask: TBitmap; out Dest: TPngImage; InverseMask: Bool
 var
   Temp: TBitmap;
   Line: pngimage.PByteArray;
-//  Line_Mask:pRGBLine;
   X, Y: Integer;
 begin
   //Create a PNG from two separate color and mask bitmaps. InverseMask should be
@@ -92,46 +88,13 @@ begin
   Dest.CreateAlpha;
   for Y := 0 to Dest.Height - 1 do begin
     Line := Dest.AlphaScanline[Y];
-//    Line_Mask := Mask.ScanLine[Y];   // added by coyotee
     for X := 0 to Dest.Width - 1 do begin
       if InverseMask then
         Line[X] := 255 - (GetPixel(Mask.Canvas.Handle, X, Y) and $FF)
-      //  Line[X] := 255 - (RGB(Line_Mask[X].rgbtBlue, Line_Mask[X].rgbtGreen, Line_Mask[X].rgbtRed) and $FF)   // added by coyotee
       else
         Line[X] := GetPixel(Mask.Canvas.Handle, X, Y) and $FF;
-      //  Line[X] := RGB(Line_Mask[X].rgbtBlue, Line_Mask[X].rgbtGreen, Line_Mask[X].rgbtRed) and $FF;   // added by coyotee
     end;
   end;
-end;
-
-
-procedure ShowInputInfo(sourcefile:string; width:cardinal; height:cardinal);
-begin
-write('Input sprite: '); ConsoleColor(true,true,true,false); write(ExtractFileName(sourcefile)); ConsoleColor();
-write(#9+#9+'Dimensions: ');
-        ConsoleColor(true); write(width); ConsoleColor();
-        write('x');
-        ConsoleColor(true); writeln(height); ConsoleColor();
-end;
-
-procedure ShowCropStatus(success:boolean; width:cardinal; height:cardinal);
-begin
-  if success then
-     begin
-       ConsoleColor(true,false,true,false);
-       write(#9+'OK'+#9+#9);
-       ConsoleColor();
-       write('New width : ');
-       ConsoleColor(true); write(width); ConsoleColor();
-       write('x');
-       ConsoleColor(true); writeln(height); ConsoleColor();
-     end
-  else
-     begin
-       ConsoleColor(true, true, false, false);
-       writeln(#9+'FAILED');
-       ConsoleColor();
-     end;
 end;
 
 end.
